@@ -32,6 +32,31 @@ When a transcribed voice message arrives, this plugin silently injects a note in
 |------|-------|---------|
 | `voice-enrich` | `message:enrich` | Add voice transcription guidance when the message body starts with `🎤 ` |
 
+## Install
+
+Vendor this plugin with the MindRoom CLI:
+
+```bash
+mindroom plugins install voice-enrich-plugin
+```
+
+Then reference it from `config.yaml`:
+
+```yaml
+plugins:
+  - path: plugins/voice-enrich-plugin
+```
+
+Update to the latest commit later with:
+
+```bash
+mindroom plugins update voice-enrich-plugin
+```
+
+The command pins the exact installed commit in `.mindroom-plugin.lock.json` and strictly validates the plugin before activating it.
+It requires a MindRoom release newer than v2026.7.175.
+For a manual checkout instead, see Setup below.
+
 ## Setup
 
 1. Copy this plugin to `~/.mindroom/plugins/voice-enrich`.
