@@ -59,6 +59,10 @@ async def test_voice_transcript_adds_volatile_metadata() -> None:
         hooks.NOTE_TEXT,
         cache_policy="volatile",
     )
+
+
+def test_note_text_explains_transcription_fallback() -> None:
+    """Voice guidance should identify the source and recovery option."""
     assert "Whisper" in hooks.NOTE_TEXT
     assert "transcribe" in hooks.NOTE_TEXT
 
