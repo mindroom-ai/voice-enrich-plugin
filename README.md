@@ -15,7 +15,7 @@ When a transcribed voice message arrives, this plugin silently injects a note in
 
 ## Features
 
-- Detects voice-origin messages using `mindroom.constants.VOICE_PREFIX` (`🎤 `)
+- Detects voice-origin messages using `mindroom.plugin_api.VOICE_PREFIX` (`🎤 `)
 - Injects AI-only metadata via `MessageEnrichContext.add_metadata`
 - Warns about common speech-to-text failure modes such as homophones, proper nouns, and rare technical terms
 - Suggests re-transcribing the original audio attachment when the transcript looks garbled

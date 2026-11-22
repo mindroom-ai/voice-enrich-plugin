@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from mindroom.constants import VOICE_PREFIX
-from mindroom.hooks import EnrichmentItem, MessageEnrichContext, hook
+from mindroom.plugin_api import VOICE_PREFIX, EnrichmentItem, MessageEnrichContext, hook
 
 NOTE_TEXT = """This message was transcribed from audio by Whisper. Treat the text as approximate:
 - Homophone errors are common (e.g. "Cinny" -> "CINE"/"CINY", "claude.md" -> "clod.md").
