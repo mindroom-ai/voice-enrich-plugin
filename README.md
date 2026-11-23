@@ -43,7 +43,7 @@ plugins:
 No plugin settings or agent tools are required.
 
 Update later with `mindroom plugins update voice-enrich-plugin` (updating replaces the installed plugin directory, so keep a copy of custom `NOTE_TEXT` edits or use a manual checkout).
-Requires MindRoom plugin API 1.0 or later.
+Needs MindRoom v2026.11.180 or later (plugin API 1.0).
 
 <details>
 <summary><b>How it works</b></summary>
@@ -52,21 +52,6 @@ Requires MindRoom plugin API 1.0 or later.
 2. On `message:enrich`, the `voice-enrich` hook (`200 ms` timeout) checks whether `ctx.envelope.body.startswith(VOICE_PREFIX)`. Non-voice messages return `[]` immediately.
 3. For voice messages, the hook attaches `NOTE_TEXT` via `ctx.add_metadata("voice_transcription", NOTE_TEXT, cache_policy="volatile")` and returns `[]`.
 4. The agent sees the `voice_transcription` metadata for the current turn while the visible Matrix event body remains unmodified, with no network or file I/O.
-
-</details>
-
-<details>
-<summary><b>Manual install</b></summary>
-
-`mindroom plugins install` pins the installed commit in `.mindroom-plugin.lock.json` and validates the plugin before activating it. To install from a manual checkout instead:
-
-1. Clone or copy this repository into `~/.mindroom/plugins/voice-enrich-plugin`.
-2. Add the plugin to `config.yaml`:
-   ```yaml
-   plugins:
-     - path: ~/.mindroom/plugins/voice-enrich-plugin
-   ```
-3. Restart MindRoom.
 
 </details>
 
