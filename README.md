@@ -1,6 +1,7 @@
 # Voice Enrich
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/mindroom-ai/voice-enrich-plugin/actions/workflows/plugin-ci.yml/badge.svg)](https://github.com/mindroom-ai/voice-enrich-plugin/actions/workflows/plugin-ci.yml)
 [![Docs](https://img.shields.io/badge/docs-plugins-blue)](https://docs.mindroom.chat/plugins/)
 [![Hooks](https://img.shields.io/badge/docs-hooks-blue)](https://docs.mindroom.chat/hooks/)
 
@@ -9,64 +10,68 @@
   <img src="https://raw.githubusercontent.com/mindroom-ai/mindroom/main/assets/logo/logo-mark.svg" alt="MindRoom Logo" align="right" width="120" />
 </picture>
 
-AI-only enrichment for [MindRoom](https://github.com/mindroom-ai/mindroom) voice messages.
+A [MindRoom](https://github.com/mindroom-ai/mindroom) hook plugin that quietly tells agents when a message was transcribed from voice audio, so they account for speech-to-text errors without changing the visible chat message.
 
-When a transcribed voice message arrives, this plugin silently injects a note into the agent prompt explaining that the text came from speech recognition and may contain transcription mistakes. The user-facing Matrix event body is never modified.
+- **Voice-only activation:** runs only on transcribed voice messages (prefixed with `🎤 `) and leaves ordinary text messages untouched.
+- **Invisible to chat:** adds guidance only for the model during reasoning; the Matrix message body shown to users stays unchanged.
+- **Zero config, zero I/O:** hooks-only with no plugin settings, agent tools, or network calls.
 
-## Features
+For every transcribed voice message, the plugin attaches this note to the model's prompt context:
 
-- Detects voice-origin messages using `mindroom.plugin_api.VOICE_PREFIX` (`🎤 `)
-- Injects AI-only metadata via `MessageEnrichContext.add_metadata`
-- Warns about common speech-to-text failure modes such as homophones, proper nouns, and rare technical terms
-- Suggests re-transcribing the original audio attachment when the transcript looks garbled
-- Zero-config, hooks-only behavior
-- Lightweight execution with no network or file I/O in the hook path
+```text
+This message was transcribed from audio by Whisper. Treat the text as approximate:
+- Homophone errors are common (e.g. "Cinny" -> "CINE"/"CINY", "claude.md" -> "clod.md").
+- Proper nouns and rare technical terms are the most error-prone.
+- Punctuation and casing reflect Whisper output, not the speaker's intent.
+If a phrase looks semantically off or contains a clearly wrong term, you can re-transcribe the original
+audio attachment using the `transcribe` skill (Whisper primary, Gemini fallback) before responding.
+```
 
-## How It Works
+> The default note assumes Whisper transcription and references a `transcribe` skill. Edit `NOTE_TEXT` in [hooks.py](hooks.py) if your transcription setup differs.
 
-1. MindRoom transcribes an incoming voice message and prefixes the visible body with `🎤 `.
-2. On `message:enrich`, the `voice-enrich` hook checks whether the incoming body starts with `VOICE_PREFIX`.
-3. If it does, the hook adds a volatile `voice_transcription` metadata note to the prompt context.
-4. The agent sees the note during reasoning, but the Matrix message body shown to the user stays unchanged.
-
-## Hooks
-
-| Hook | Event | Purpose |
-|------|-------|---------|
-| `voice-enrich` | `message:enrich` | Add voice transcription guidance when the message body starts with `🎤 ` |
-
-## Install
-
-Vendor this plugin with the MindRoom CLI:
+## Quick start
 
 ```bash
 mindroom plugins install voice-enrich-plugin
 ```
-
-Then reference it from `config.yaml`:
 
 ```yaml
 plugins:
   - path: plugins/voice-enrich-plugin
 ```
 
-Update to the latest commit later with:
+No plugin settings or agent tools are required.
 
-```bash
-mindroom plugins update voice-enrich-plugin
-```
+Update later with `mindroom plugins update voice-enrich-plugin`.
+Requires MindRoom plugin API 1.0 or later.
 
-The command pins the exact installed commit in `.mindroom-plugin.lock.json` and strictly validates the plugin before activating it.
-For a manual checkout instead, see Setup below.
+<details>
+<summary><b>How it works</b></summary>
 
-## Setup
+1. MindRoom transcribes an incoming voice message and prefixes the visible body with `VOICE_PREFIX` (`🎤 ` from `mindroom.plugin_api`).
+2. On `message:enrich`, the `voice-enrich` hook (`200 ms` timeout) checks whether `ctx.envelope.body.startswith(VOICE_PREFIX)`. Non-voice messages return `[]` immediately.
+3. For voice messages, the hook attaches `NOTE_TEXT` via `ctx.add_metadata("voice_transcription", NOTE_TEXT, cache_policy="volatile")` and returns `[]`.
+4. The agent sees the `voice_transcription` metadata for the current turn while the visible Matrix event body remains unmodified, with no network or file I/O.
 
-1. Copy this plugin to `~/.mindroom/plugins/voice-enrich`.
+</details>
+
+<details>
+<summary><b>Manual install</b></summary>
+
+`mindroom plugins install` pins the installed commit in `.mindroom-plugin.lock.json` and validates the plugin before activating it. To install from a manual checkout instead:
+
+1. Clone or copy this repository into `~/.mindroom/plugins/voice-enrich-plugin`.
 2. Add the plugin to `config.yaml`:
    ```yaml
    plugins:
-     - path: plugins/voice-enrich
+     - path: plugins/voice-enrich-plugin
    ```
 3. Restart MindRoom.
 
-No agent tools or plugin settings are required. This plugin is hooks-only.
+</details>
+
+## Hooks
+
+| Hook | Event | Purpose |
+|------|-------|---------|
+| `voice-enrich` | `message:enrich` | Add voice transcription guidance when the message body starts with `🎤 ` |
