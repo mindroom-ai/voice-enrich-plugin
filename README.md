@@ -42,7 +42,7 @@ plugins:
 
 No plugin settings or agent tools are required.
 
-Update later with `mindroom plugins update voice-enrich-plugin`.
+Update later with `mindroom plugins update voice-enrich-plugin` (updating replaces the installed plugin directory, so keep a copy of custom `NOTE_TEXT` edits or use a manual checkout).
 Requires MindRoom plugin API 1.0 or later.
 
 <details>
@@ -64,7 +64,7 @@ Requires MindRoom plugin API 1.0 or later.
 2. Add the plugin to `config.yaml`:
    ```yaml
    plugins:
-     - path: plugins/voice-enrich-plugin
+     - path: ~/.mindroom/plugins/voice-enrich-plugin
    ```
 3. Restart MindRoom.
 
